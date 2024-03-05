@@ -274,9 +274,9 @@ async def add_order_delivery(message: types.Message, state: FSMContext):
   for rec in data:
     text = f"ID: {rec['id']}\nИмя: {rec['name']}\nТелефон: {rec['phone']}\nТовары: {rec['items']}\nВремя получения: {rec['time']}\nДоставка: {rec['delivery']}\nОплата: {rec['pay']}\nУпаковка: {rec['wrap']}"
   await bot.send_message(chat_id=ADMIN_ID, text=text)
-  await message.answer('Заказ создан!', reply_markup=admin_board)
+  await message.answer('Спасибо за заказ🤍', reply_markup=admin_board)
   await message.answer(
-    '*<b>Внимание!</b> Заказ является подтвержденным только после связи с нашим специалистом',
+    '*<b>Внимание!</b> Заказ является подтвержденным только после связи с нашим специалистом @Trofimovich_Vika (+375 25 713 56 72)',
     parse_mode='html')
   await state.finish()
 
@@ -399,9 +399,9 @@ async def add_order_delivery(message: types.Message, state: FSMContext):
   for rec in data:
     text = f"ID: {rec['id']}\nИмя: {rec['name']}\nТелефон: {rec['phone']}\nТовары: {rec['items']}\nВремя получения: {rec['time']}\nДоставка: {rec['delivery']}\nОплата: {rec['pay']}\nУпаковка: {rec['wrap']}"
   await bot.send_message(chat_id=ADMIN_ID, text=text)
-  await message.answer('Заказ создан!', reply_markup=keyboard)
+  await message.answer('Спасибо за заказ🤍', reply_markup=keyboard)
   await message.answer(
-    '*<b>Внимание!</b> Заказ является подтвержденным только после связи с нашим специалистом',
+    '*<b>Внимание!</b> Заказ является подтвержденным только после связи с нашим специалистом @Trofimovich_Vika (+375 25 713 56 72)',
     parse_mode='html')
   await state.finish()
 
