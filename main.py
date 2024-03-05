@@ -217,7 +217,7 @@ async def add_order_items(message: types.Message, state: FSMContext):
   async with state.proxy() as data:
     data['items'] = message.text
   await message.answer(
-    'Введите <b>время</b> и <b>дату</b> доставки или самовывоза',
+    'Введите <b>время</b>, <b>дату</b> и <b>адрес</b> доставки (платно) или самовывоза (бесплатно)',
     parse_mode='html')
   await NewOrder.next()
 
@@ -227,7 +227,7 @@ async def add_order_items(message: types.Message, state: FSMContext):
   async with state.proxy() as data:
     data['time'] = message.text
   await message.answer(
-    'Введите <b>способ доставки</b> \nБЕСПЛАТНО при заказе от 80р (в пределах МКАД)\nПри заказе менее 80р - 9р\nБЕСПЛАТНО - самовывоз с ул. Полевая, 10 (г. Минск\nДоставка по Минской области (в пределах МКАД 2) - 15р)',
+    'Введите <b>способ доставки</b> \nДоставка по Минску - 9р\nБЕСПЛАТНО - самовывоз с ул. Кольцова, 53 г. Минск\nДоставка по Минской области (в пределах МКАД 2) - 15р)',
     parse_mode='html')
   await NewOrder.next()
 
@@ -342,7 +342,7 @@ async def add_order_items(message: types.Message, state: FSMContext):
   async with state.proxy() as data:
     data['items'] = message.text
   await message.answer(
-    'Введите <b>время</b> и <b>дату</b> доставки или самовывоза',
+    'Введите <b>время</b>, <b>дату</b> и <b>адрес</b> доставки (платно) или самовывоза (бесплатно)',
     parse_mode='html')
   await NewOrder.next()
 
@@ -352,7 +352,7 @@ async def add_order_items(message: types.Message, state: FSMContext):
   async with state.proxy() as data:
     data['time'] = message.text
   await message.answer(
-    'Введите <b>способ доставки</b> \nБЕСПЛАТНО при заказе от 80р (в пределах МКАД)\nПри заказе менее 80р - 9р\nБЕСПЛАТНО - самовывоз с ул. Полевая, 10 (г. Минск\nДоставка по Минской области (в пределах МКАД 2) - 15р)',
+    'Введите <b>способ доставки</b> \nДоставка по Минску - 9р\nБЕСПЛАТНО - самовывоз с ул. Кольцова, 53 г. Минск\nДоставка по Минской области (в пределах МКАД 2) - 15р)',
     parse_mode='html')
   await NewOrder.next()
 
