@@ -7,8 +7,7 @@ from background import keep_alive
 
 TOKEN = '6388868345:AAGx6ZscZGS6aJnrCePmE3rbyh6KJUZlMF4'
 GROUP_ID = -1001943459915
-ADMIN_ID = 780777563
-# Vika 850399809
+ADMIN_ID = 850399809
 storage = MemoryStorage()
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
