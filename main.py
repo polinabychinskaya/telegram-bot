@@ -7,7 +7,8 @@ from background import keep_alive
 
 TOKEN = '6388868345:AAGx6ZscZGS6aJnrCePmE3rbyh6KJUZlMF4'
 GROUP_ID = -1001943459915
-ADMIN_ID = 850399809
+ADMIN_ID = 780777563
+# Vika 850399809
 storage = MemoryStorage()
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
@@ -50,7 +51,8 @@ admin_board = types.ReplyKeyboardMarkup(resize_keyboard=True)
 adm_btn = [
   types.KeyboardButton(text='Ассортимент', callback_data='ассортимент'),
   types.KeyboardButton(text='Добавить товар', callback_data='other'),
-  types.KeyboardButton(text='Все заказы', callback_data='other')
+  types.KeyboardButton(text='Все заказы', callback_data='other'),
+  types.KeyboardButton(text='Добавить заказ', callback_data='Добавить заказ'),
 ]
 admin_board.add(*adm_btn)
 #-------------CATALOG INLINE KEY BOARD-------------#
@@ -175,6 +177,130 @@ async def category_callback_handler(callback_query: types.CallbackQuery):
     '<b>Какие виды упаковки доступны?</b> \nКрафт ~ 3р\nЦветная/прозрачная пленка ~ 3-6р\nБез упаковки (только лента) - 0р \n*Просьба отбратить внимание, что на стоимость упаковки влияет размер букета',
     parse_mode='html')
   await callback_query.answer()
+
+#-------------NEW ORDER BY ADMIN-------------#
+class NewOrder(StatesGroup):
+  name = State()
+  phone = State()
+  items = State()
+  time = State()
+  delivery = State()
+  pay = State()
+  wrap = State()
+
+
+@dp.message_handler(text='Добавить заказ')
+async def add_order(message: types.Message):
+  await NewOrder.name.set()
+  await message.answer('Введите <b>имя</b> клиента', parse_mode='html')
+
+
+@dp.message_handler(state=NewOrder.name)
+async def add_order_name(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['name'] = message.text
+  await message.answer('Введите <b>номер телефона</b>', parse_mode='html')
+  await NewOrder.next()
+
+
+@dp.message_handler(state=NewOrder.phone)
+async def add_order_phone(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['phone'] = message.text
+  await message.answer(
+    'Введите <b>товарные позиции</b> и их <b>количество</b>',
+    parse_mode='html')
+  await NewOrder.next()
+
+
+@dp.message_handler(state=NewOrder.items)
+async def add_order_items(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['items'] = message.text
+  await message.answer(
+    'Введите <b>время</b> и <b>дату</b> доставки или самовывоза',
+    parse_mode='html')
+  await NewOrder.next()
+
+
+@dp.message_handler(state=NewOrder.time)
+async def add_order_items(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['time'] = message.text
+  await message.answer(
+    'Введите <b>способ доставки</b> \nБЕСПЛАТНО при заказе от 80р (в пределах МКАД)\nПри заказе менее 80р - 9р\nБЕСПЛАТНО - самовывоз с ул. Полевая, 10 (г. Минск\nДоставка по Минской области (в пределах МКАД 2) - 15р)',
+    parse_mode='html')
+  await NewOrder.next()
+
+
+@dp.message_handler(state=NewOrder.delivery)
+async def add_order_items(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['delivery'] = message.text
+  await message.answer(
+    'Введите <b>способ оплаты</b>\n<b>Доступные виды оплаты:</b>\nОплата по реквизитам\nНаличными при получении',
+    parse_mode='html')
+  await NewOrder.next()
+
+
+@dp.message_handler(state=NewOrder.pay)
+async def add_order_delivery(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['pay'] = message.text
+  await message.answer(
+    'Введите вид упаковки\n<b>Доступные виды упаковки:</b>\nКрафт ~ 3р\nЦветная/прозрачная пленка ~ 3-6р\nБез упаковки (только лента) - 0р \n*Просьба отбратить внимание, что на стоимость упаковки влияет размер букета',
+    parse_mode='html')
+  await NewOrder.next()
+
+
+@dp.message_handler(state=NewOrder.wrap)
+async def add_order_delivery(message: types.Message, state: FSMContext):
+  async with state.proxy() as data:
+    data['wrap'] = message.text
+  await db.add_order(state)
+  db.cur.execute("SELECT * FROM items")
+  rows = db.cur.fetchall()
+  data = []
+  for row in rows:
+    rec = {}
+    rec['id'] = row[0]
+    rec['name'] = row[1]
+    rec['phone'] = row[2]
+    rec['items'] = row[3]
+    rec['time'] = row[4]
+    rec['delivery'] = row[5]
+    rec['pay'] = row[6]
+    rec['wrap'] = row[7]
+    data.append(rec)
+  for rec in data:
+    text = f"ID: {rec['id']}\nИмя: {rec['name']}\nТелефон: {rec['phone']}\nТовары: {rec['items']}\nВремя получения: {rec['time']}\nДоставка: {rec['delivery']}\nОплата: {rec['pay']}\nУпаковка: {rec['wrap']}"
+  await bot.send_message(chat_id=ADMIN_ID, text=text)
+  await message.answer('Заказ создан!', reply_markup=admin_board)
+  await message.answer(
+    '*<b>Внимание!</b> Заказ является подтвержденным только после связи с нашим специалистом',
+    parse_mode='html')
+  await state.finish()
+
+
+@dp.message_handler(filters.Text(contains='Все заказы', ignore_case=True))
+async def handle_get_data(message: types.Message):
+  db.cur.execute("SELECT * FROM items")
+  rows = db.cur.fetchall()
+  data = []
+  for row in rows:
+    rec = {}
+    rec['id'] = row[0]
+    rec['name'] = row[1]
+    rec['phone'] = row[2]
+    rec['items'] = row[3]
+    rec['time'] = row[4]
+    rec['delivery'] = row[5]
+    rec['pay'] = row[6]
+    rec['wrap'] = row[7]
+    data.append(rec)
+  for rec in data:
+    text = f"ID: {rec['id']}\nИмя: {rec['name']}\nТелефон: {rec['phone']}\nТовары: {rec['items']}\nВремя получения: {rec['time']}\nДоставка: {rec['delivery']}\nОплата: {rec['pay']}\nУпаковка: {rec['wrap']}"
+    await bot.send_message(chat_id=ADMIN_ID, text=text)
 
 
 #-------------NEW ORDER-------------#
